@@ -1,1 +1,35 @@
+server:
+  port: 8080
+  error:
+    include-message: always
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  endpoint:
+    shutdown:
+      enabled: true
+
+spring:
+  jackson:
+    serialization:
+      INDENT_OUTPUT: true
+  h2:
+    console:
+      enabled: true # access under /h2-console. example JDBC URL: jdbc:h2:file:C:/Users/emadh/Desktop/service_db
+      settings:
+        trace: false
+        web-allow-others: false
+  datasource:
+    url: jdbc:h2:file:./service_db
+    driverClassName: org.h2.Driver
+    username: sa
+    password: password
+  jpa:
+    hibernate:
+      ddl-auto: create # the database will be created if it doesn't exist
+    database-platform: org.hibernate.dialect.H2Dialect
+    show-sql: true # log executed sql
 
