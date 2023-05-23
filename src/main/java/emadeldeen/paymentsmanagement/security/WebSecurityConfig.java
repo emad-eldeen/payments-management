@@ -21,6 +21,8 @@ public class WebSecurityConfig {
                 .authorizeHttpRequests(requests -> requests
                         .requestMatchers(HttpMethod.POST, "/api/auth/users").permitAll() // user registration is public
                         .requestMatchers("/api/auth/change-password").authenticated()
+                        .requestMatchers("/api/accounting/payments").permitAll()
+                        .requestMatchers("/api/employee/payment").authenticated()
                         .requestMatchers("/error").permitAll() // for sending back errors
                         .requestMatchers(regexMatcher("\\/h2-console.*")).permitAll() // for H2 console
                         .anyRequest().authenticated()
