@@ -7,6 +7,17 @@ It supports authentication, authentication with security standards, logging secu
     - HTTP basic authentication
     - Storing users credentials in a relational database
     - Password requirements: at least **12** characters, and it should not be breached (check against a db table of breached passwords)
+- Authorization:
+````
+  |                                                  | Anonymous | User | Accountant | Admin |
+  |------------------------------------------------  |-----------|------|------------|-------|
+  | POST /api/auth/user                              | +         | +    | +          | +     |
+  | DELETE /api/auth/change-password                 | -         | +    | +          | +     |
+  | POST, PUT /api/accounting/payments               | -         | -    | +          | -     |
+  | GET /api/employee/payment                        | -         | +    | +          | -     |
+  | GET, DELETE /api/admin/user                      | -         | -    | -          | +     |
+  | PUT /api/admin/user/role                         | -         | -    | -          | +     |
+````
 - Payment:
     - Storing payments for users for periods (MM-YYYY)
     - payments validation:
@@ -23,6 +34,10 @@ It supports authentication, authentication with security standards, logging secu
         - change payment
     - Employee:
         - get payment(s)
+    - Admin:
+        - list users
+        - delete user
+        - grant/delete user roles
 
 ## Knowledge Used
 - Spring Boot:
@@ -65,4 +80,18 @@ It supports authentication, authentication with security standards, logging secu
 }
 ```
 - get employee salary: GET localhost:8080/api/employee/payment with basic auth
-
+- list users: GET localhost:8080/api/admin/user
+- delete user: DELETE localhost:8080/api/admin/user
+```json
+{
+  "user":"johndoe@acme.com"
+}
+```
+- add user role: PUT localhost:8080/api/admin/user/role
+```json
+{
+  "user":"johndoe@acme.com",
+  "operation": "GRANT",
+  "role": "ACCOUNTANT"
+}
+```

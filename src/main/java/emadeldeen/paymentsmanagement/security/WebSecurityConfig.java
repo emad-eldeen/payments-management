@@ -1,5 +1,6 @@
 package emadeldeen.paymentsmanagement.security;
 
+import emadeldeen.paymentsmanagement.business.Role;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -21,8 +22,12 @@ public class WebSecurityConfig {
                 .authorizeHttpRequests(requests -> requests
                         .requestMatchers(HttpMethod.POST, "/api/auth/users").permitAll() // user registration is public
                         .requestMatchers("/api/auth/change-password").authenticated()
-                        .requestMatchers("/api/accounting/payments").permitAll()
-                        .requestMatchers("/api/employee/payment").authenticated()
+                        .requestMatchers("/api/accounting/payments").hasAnyAuthority(Role.RoleEnum.ROLE_ACCOUNTANT.toString())
+                        .requestMatchers("/api/employee/payment").hasAnyAuthority(Role.RoleEnum.ROLE_ACCOUNTANT.toString(),
+                                Role.RoleEnum.ROLE_USER.toString())
+                        .requestMatchers(HttpMethod.GET, "/api/admin/user").hasAnyAuthority(Role.RoleEnum.ROLE_ADMINISTRATOR.toString())
+                        .requestMatchers(HttpMethod.DELETE, "/api/admin/user").hasAnyAuthority(Role.RoleEnum.ROLE_ADMINISTRATOR.toString())
+                        .requestMatchers(HttpMethod.PUT, "/api/admin/user/role").hasAnyAuthority(Role.RoleEnum.ROLE_ADMINISTRATOR.toString())
                         .requestMatchers("/error").permitAll() // for sending back errors
                         .requestMatchers(regexMatcher("\\/h2-console.*")).permitAll() // for H2 console
                         .anyRequest().authenticated()

@@ -1,11 +1,13 @@
 package emadeldeen.paymentsmanagement.business;
 
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class UserDetailsImp implements UserDetails {
     private final String username;
@@ -16,7 +18,9 @@ public class UserDetailsImp implements UserDetails {
     public UserDetailsImp(User user) {
         username = user.getEmail();
         password = user.getPassword();
-        rolesAndAuthorities = new ArrayList<>();
+        rolesAndAuthorities = user.getRolesString().stream()
+                .map(SimpleGrantedAuthority::new)
+                .collect(Collectors.toList());
         locked = false;
     }
 
