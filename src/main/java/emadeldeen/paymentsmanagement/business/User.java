@@ -40,6 +40,11 @@ public class User {
             fetch = FetchType.EAGER) // avoid hibernate session error on retrieving user roles for auth
     Set<Role> roles;
 
+    @JsonIgnore
+    int failedAttempts;
+    @JsonIgnore
+    boolean locked;
+
     @JsonGetter("roles")
     public List<String> getRolesString() {
         return roles.stream()

@@ -5,22 +5,20 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.LocalDate;
+
 @Entity
 @Getter
 @Setter
 @NoArgsConstructor
-public class Role {
+public class Event {
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     long id;
-    @Column(unique = true)
+    LocalDate date;
     @Enumerated(EnumType.STRING)
-    RoleEnum roleName;
-
-    public enum RoleEnum {
-        ROLE_ACCOUNTANT,
-        ROLE_ADMINISTRATOR,
-        ROLE_USER,
-        ROLE_AUDITOR
-    }
+    EventAction action;
+    String subject;
+    String object;
+    String path;
 }

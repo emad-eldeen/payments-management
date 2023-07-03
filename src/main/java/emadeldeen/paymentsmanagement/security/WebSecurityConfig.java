@@ -10,7 +10,9 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.access.AccessDeniedHandler;
 
 import static org.springframework.security.web.util.matcher.RegexRequestMatcher.regexMatcher;
 
@@ -28,10 +30,12 @@ public class WebSecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/admin/user").hasAnyAuthority(Role.RoleEnum.ROLE_ADMINISTRATOR.toString())
                         .requestMatchers(HttpMethod.DELETE, "/api/admin/user").hasAnyAuthority(Role.RoleEnum.ROLE_ADMINISTRATOR.toString())
                         .requestMatchers(HttpMethod.PUT, "/api/admin/user/role").hasAnyAuthority(Role.RoleEnum.ROLE_ADMINISTRATOR.toString())
+                        .requestMatchers(HttpMethod.GET, "/api/security/events").hasAnyAuthority(Role.RoleEnum.ROLE_AUDITOR.toString())
                         .requestMatchers("/error").permitAll() // for sending back errors
                         .requestMatchers(regexMatcher("\\/h2-console.*")).permitAll() // for H2 console
                         .anyRequest().authenticated()
                 )
+                .exceptionHandling(customizer -> customizer.accessDeniedHandler(accessDeniedHandler()))
                 .httpBasic(Customizer.withDefaults()) // enable basic html authentication
                 .csrf(AbstractHttpConfigurer::disable) // for postman requests
                 .headers(headersConfigurer -> headersConfigurer
@@ -44,5 +48,10 @@ public class WebSecurityConfig {
     @Bean
     public PasswordEncoder getEncoder() {
         return new BCryptPasswordEncoder();
+    }
+
+    @Bean
+    public AccessDeniedHandler accessDeniedHandler() {
+        return new CustomAccessDeniedHandler();
     }
 }

@@ -22,6 +22,9 @@ public class UserService {
     PasswordValidator passwordValidator;
     @Autowired
     RoleRepository roleRepository;
+    @Autowired
+    EventService eventService;
+    static final int MAX_FAILED_ATTEMPTS = 6;
 
     public User createUser(User user) {
         if (userRepository.getByEmailIgnoreCase(user.getEmail())
@@ -146,6 +149,37 @@ public class UserService {
     private boolean userHasBusinessRole(User user) {
         List<String> userRoles = user.getRolesString();
         return userRoles.contains(Role.RoleEnum.ROLE_USER.name()) ||
-                userRoles.contains(Role.RoleEnum.ROLE_ACCOUNTANT.name());
+                userRoles.contains(Role.RoleEnum.ROLE_ACCOUNTANT.name()) ||
+                userRoles.contains(Role.RoleEnum.ROLE_AUDITOR.name());
+    }
+
+    public void lockUser(String email) {
+        User dbUser = userRepository.getByEmailIgnoreCase(email)
+                .orElseThrow(() -> new NotFoundException("User not found!"));
+        if (userHasAdminRole(dbUser))
+            throw new BadRequestException("Can't lock the ADMINISTRATOR!");
+        dbUser.setLocked(true);
+        userRepository.save(dbUser);
+    }
+
+    public void unlockUser(String email) {
+        User dbUser = userRepository.getByEmailIgnoreCase(email)
+                .orElseThrow(() -> new NotFoundException("User not found!"));
+        dbUser.setLocked(false);
+        dbUser.setFailedAttempts(0);
+        userRepository.save(dbUser);
+    }
+
+    public void failedUserLogin(String email) {
+        eventService.createEvent(EventAction.LOGIN_FAILED, email, null);
+        userRepository.getByEmailIgnoreCase(email).ifPresent(user -> {
+            user.setFailedAttempts(user.getFailedAttempts() + 1);
+            if (user.failedAttempts > MAX_FAILED_ATTEMPTS) {
+                eventService.createEvent(EventAction.BRUTE_FORCE, email, null);
+                user.setLocked(true);
+                eventService.createEvent(EventAction.LOCK_USER, email, "Lock user " + email);
+            }
+            userRepository.save(user);
+        });
     }
 }

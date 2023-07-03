@@ -2,5 +2,7 @@ package emadeldeen.paymentsmanagement.business;
 
 public enum Operation {
     GRANT,
-    REMOVE
+    REMOVE,
+    LOCK,
+    UNLOCK
 }

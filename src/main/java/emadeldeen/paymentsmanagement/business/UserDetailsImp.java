@@ -21,7 +21,7 @@ public class UserDetailsImp implements UserDetails {
         rolesAndAuthorities = user.getRolesString().stream()
                 .map(SimpleGrantedAuthority::new)
                 .collect(Collectors.toList());
-        locked = false;
+        locked = user.isLocked();
     }
 
     @Override
